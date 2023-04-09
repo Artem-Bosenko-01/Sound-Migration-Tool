@@ -1,25 +1,20 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import YouTubeAuth from './YouTubeAuth';
+import { loadAuth2 } from 'gapi-script';
+
 
 function App() {
+  loadAuth2(
+    'client:auth2',
+    '75898408331-4prql5eq7jgha86b82rdtlj4vptrcg2v.apps.googleusercontent.com',
+    'https://www.googleapis.com/auth/youtube.force-ssl',
+  );
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+        <YouTubeAuth />
+    </>
   );
 }
 

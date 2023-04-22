@@ -17,6 +17,7 @@ const MigrationWizard = () => {
   const [selectedDstPlatform, setSelectedDstPlatform] = useState<keyof typeof icons | undefined>(
     undefined,
   );
+  const [isNextButtonAvailable, setNextButtonAvailable] = useState(false);
 
   const handleNext = () => {
     if (steps.length - 1 === activeStep) {
@@ -47,11 +48,17 @@ const MigrationWizard = () => {
                   setSelectedSrcPlatform,
                   selectedSrcPlatform,
                   setSelectedDstPlatform,
-                  selectedDstPlatform
+                  selectedDstPlatform,
+                  setNextButtonAvailable,
                 })}
                 <Box sx={{ mb: 2 }}>
                   <div>
-                    <Button variant="contained" onClick={handleNext} sx={{ mt: 1, mr: 1 }}>
+                    <Button
+                      disabled={!isNextButtonAvailable}
+                      variant="contained"
+                      onClick={handleNext}
+                      sx={{ mt: 1, mr: 1 }}
+                    >
                       {index === steps.length - 1 ? 'Finish' : 'Continue'}
                     </Button>
                     <Button disabled={index === 0} onClick={handleBack} sx={{ mt: 1, mr: 1 }}>

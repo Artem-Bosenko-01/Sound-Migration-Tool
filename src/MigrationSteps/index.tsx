@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import { Paper } from '@mui/material';
 import ChoosePlatformStep from './ChoosePlatformStep';
 import icons from '../Icons';
+import ChoosePlaylistsStep from './ChoosePlaylistsStep';
 
 type StepRendererProps = {
   onReset: () => void;
@@ -11,6 +12,7 @@ type StepRendererProps = {
   setSelectedDstPlatform: (platformName?: keyof typeof icons) => void;
   selectedSrcPlatform?: keyof typeof icons;
   selectedDstPlatform?: keyof typeof icons;
+  setNextButtonAvailable: (isDisabled: boolean) => void;
 };
 
 type Step = {
@@ -21,25 +23,44 @@ type Steps = Array<Step>;
 const steps: Steps = [
   {
     label: 'Choose source Platform',
-    stepRenderer: ({ selectedSrcPlatform, setSelectedSrcPlatform }) => (
+    stepRenderer: ({ selectedSrcPlatform, setSelectedSrcPlatform, setNextButtonAvailable }) => (
       <ChoosePlatformStep
         selectedPlatform={selectedSrcPlatform}
         setSelectedPlatform={setSelectedSrcPlatform}
+        setNextButtonAvailable={setNextButtonAvailable}
       />
     ),
   },
   {
     label: 'Choose destination platform',
-    stepRenderer: ({ selectedDstPlatform, setSelectedDstPlatform, selectedSrcPlatform }) => (
+    stepRenderer: ({
+      selectedDstPlatform,
+      setSelectedDstPlatform,
+      selectedSrcPlatform,
+      setNextButtonAvailable,
+    }) => (
       <ChoosePlatformStep
         selectedPlatform={selectedDstPlatform}
         setSelectedPlatform={setSelectedDstPlatform}
         isDisabledHandler={(currentPlatform) => currentPlatform === selectedSrcPlatform}
+        setNextButtonAvailable={setNextButtonAvailable}
       />
     ),
   },
-  { label: 'Choose playlists', stepRenderer: () => <>Choose playlists</> },
-  { label: 'Migration processing', stepRenderer: () => <>Migration processing</> },
+  {
+    label: 'Choose playlists',
+    stepRenderer: ({ selectedSrcPlatform, selectedDstPlatform, setNextButtonAvailable }) => (
+      <ChoosePlaylistsStep
+        selectedSrcPlatform={selectedSrcPlatform!}
+        selectedDstPlatform={selectedDstPlatform!}
+        setNextButtonAvailable={setNextButtonAvailable}
+      />
+    ),
+  },
+  {
+    label: 'Migration processing',
+    stepRenderer: ({ setNextButtonAvailable }) => <>Migration processing</>,
+  },
   {
     label: 'Migration completed!',
     stepRenderer: ({ onReset }) => (

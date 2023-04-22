@@ -4,19 +4,26 @@ import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-
-const steps = ['Choose source Platform', 'Choose destination platform', 'Choose playlists', 'Migration processing', "Migration completed!"];
+import { StepContent } from '@mui/material';
+import steps from '../MigrationSteps';
+import { useState } from 'react';
+import icons from '../Icons';
 
 const MigrationWizard = () => {
-  const [activeStep, setActiveStep] = React.useState(0);
-
-  const isStepOptional = (step: number) => {
-    return step === 1;
-  };
+  const [activeStep, setActiveStep] = useState(0);
+  const [selectedSrcPlatform, setSelectedSrcPlatform] = useState<keyof typeof icons | undefined>(
+    undefined,
+  );
+  const [selectedDstPlatform, setSelectedDstPlatform] = useState<keyof typeof icons | undefined>(
+    undefined,
+  );
 
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    if (steps.length - 1 === activeStep) {
+      handleReset();
+    } else {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
   };
 
   const handleBack = () => {
@@ -28,56 +35,37 @@ const MigrationWizard = () => {
   };
 
   return (
-    <Box sx={{ padding: "30px 25px 0px" }}>
-      <Stepper activeStep={activeStep}>
-        {steps.map((label, index) => {
-          const stepProps: { completed?: boolean } = {};
-          const labelProps: {
-            optional?: React.ReactNode;
-          } = {};
-          if (isStepOptional(index)) {
-            labelProps.optional = (
-              <Typography variant="caption">Optional</Typography>
-            );
-          }
-          return (
-            <Step key={label} {...stepProps}>
-              <StepLabel {...labelProps}>{label}</StepLabel>
-            </Step>
-          );
-        })}
+    <Box sx={{ padding: '30px 25px 0px' }} display={'flex'} justifyContent={'center'}>
+      <Stepper activeStep={activeStep} orientation="vertical">
+        {steps.map((step, index) => (
+          <Step key={step.label}>
+            <StepLabel>{step.label}</StepLabel>
+            <StepContent>
+              <>
+                {step.stepRenderer({
+                  onReset: handleReset,
+                  setSelectedSrcPlatform,
+                  selectedSrcPlatform,
+                  setSelectedDstPlatform,
+                  selectedDstPlatform
+                })}
+                <Box sx={{ mb: 2 }}>
+                  <div>
+                    <Button variant="contained" onClick={handleNext} sx={{ mt: 1, mr: 1 }}>
+                      {index === steps.length - 1 ? 'Finish' : 'Continue'}
+                    </Button>
+                    <Button disabled={index === 0} onClick={handleBack} sx={{ mt: 1, mr: 1 }}>
+                      Back
+                    </Button>
+                  </div>
+                </Box>
+              </>
+            </StepContent>
+          </Step>
+        ))}
       </Stepper>
-      {activeStep === steps.length ? (
-        <React.Fragment>
-          <Typography sx={{ mt: 2, mb: 1 }}>
-            All steps completed - you&apos;re finished
-          </Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-            <Box sx={{ flex: '1 1 auto' }} />
-            <Button onClick={handleReset}>Reset</Button>
-          </Box>
-        </React.Fragment>
-      ) : (
-        <React.Fragment>
-          <Typography sx={{ mt: 2, mb: 1 }}>Step {activeStep + 1}</Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-            <Button
-              color="inherit"
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              sx={{ mr: 1 }}
-            >
-              Back
-            </Button>
-            <Box sx={{ flex: '1 1 auto' }} />
-            <Button onClick={handleNext}>
-              {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-            </Button>
-          </Box>
-        </React.Fragment>
-      )}
     </Box>
   );
-}
+};
 
-export default MigrationWizard
+export default MigrationWizard;

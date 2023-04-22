@@ -1,15 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import ThemeProvider from '../src/ThemeProvider';
 import Typography from '@mui/material/Typography';
 import Header from './Header';
 import Routes from './routes';
 
-const theme = createTheme();
 
 function Copyright(props: any) {
   return (
@@ -24,7 +22,7 @@ function Copyright(props: any) {
 ReactDOM.render(
   <React.StrictMode>
     <Router>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider>
         <Header />
         <Routes />
         <Copyright sx={{ mt: 8, mb: 4 }} />

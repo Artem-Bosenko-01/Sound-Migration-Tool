@@ -8,6 +8,7 @@ import { StepContent } from '@mui/material';
 import steps from '../MigrationSteps';
 import { useState } from 'react';
 import icons from '../Icons';
+import { PlaylistModel } from '../api-service';
 
 const MigrationWizard = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -17,6 +18,8 @@ const MigrationWizard = () => {
   const [selectedDstPlatform, setSelectedDstPlatform] = useState<keyof typeof icons | undefined>(
     undefined,
   );
+  const [selectedPlaylists, setSelectedPlaylists] = useState<Array<PlaylistModel>>([]);
+
   const [isNextButtonAvailable, setNextButtonAvailable] = useState(false);
 
   const handleNext = () => {
@@ -41,7 +44,7 @@ const MigrationWizard = () => {
         {steps.map((step, index) => (
           <Step key={step.label}>
             <StepLabel>{step.label}</StepLabel>
-            <StepContent>
+            <StepContent sx={{width: "300px"}}>
               <>
                 {step.stepRenderer({
                   onReset: handleReset,
@@ -50,6 +53,9 @@ const MigrationWizard = () => {
                   setSelectedDstPlatform,
                   selectedDstPlatform,
                   setNextButtonAvailable,
+                  selectedPlaylists,
+                  setSelectedPlaylists,
+                  onSuccessMigration: handleNext
                 })}
                 <Box sx={{ mb: 2 }}>
                   <div>

@@ -7,6 +7,7 @@ import ThemeProvider from '../src/ThemeProvider';
 import Typography from '@mui/material/Typography';
 import Header from './Header';
 import Routes from './routes';
+import QueryClientProvider from './QueryClientProvider';
 
 
 function Copyright(props: any) {
@@ -21,13 +22,15 @@ function Copyright(props: any) {
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router>
-      <ThemeProvider>
-        <Header />
-        <Routes />
-        <Copyright sx={{ mt: 8, mb: 4 }} />
-      </ThemeProvider>
-    </Router>
+    <QueryClientProvider>
+      <Router>
+        <ThemeProvider>
+          <Header />
+          <Routes />
+          <Copyright sx={{ mt: 8, mb: 4 }} />
+        </ThemeProvider>
+      </Router>
+    </QueryClientProvider>
   </React.StrictMode>,
   document.getElementById('root') as HTMLElement,
 );

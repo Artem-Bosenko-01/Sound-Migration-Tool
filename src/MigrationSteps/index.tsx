@@ -5,6 +5,8 @@ import { Paper } from '@mui/material';
 import ChoosePlatformStep from './ChoosePlatformStep';
 import icons from '../Icons';
 import ChoosePlaylistsStep from './ChoosePlaylistsStep';
+import MigrationProcessingStep from './MigrationProcessingStep';
+import { PlaylistModel } from '../api-service';
 
 type StepRendererProps = {
   onReset: () => void;
@@ -13,6 +15,9 @@ type StepRendererProps = {
   selectedSrcPlatform?: keyof typeof icons;
   selectedDstPlatform?: keyof typeof icons;
   setNextButtonAvailable: (isDisabled: boolean) => void;
+  selectedPlaylists: Array<PlaylistModel>;
+  setSelectedPlaylists: (playlists: Array<PlaylistModel>) => void;
+  onSuccessMigration: () => void
 };
 
 type Step = {
@@ -49,17 +54,30 @@ const steps: Steps = [
   },
   {
     label: 'Choose playlists',
-    stepRenderer: ({ selectedSrcPlatform, selectedDstPlatform, setNextButtonAvailable }) => (
+    stepRenderer: ({
+      selectedSrcPlatform,
+      selectedPlaylists,
+      setSelectedPlaylists,
+      setNextButtonAvailable,
+    }) => (
       <ChoosePlaylistsStep
         selectedSrcPlatform={selectedSrcPlatform!}
-        selectedDstPlatform={selectedDstPlatform!}
+        selectedPlaylists={selectedPlaylists}
+        setSelectedPlaylists={setSelectedPlaylists}
         setNextButtonAvailable={setNextButtonAvailable}
       />
     ),
   },
   {
     label: 'Migration processing',
-    stepRenderer: ({ setNextButtonAvailable }) => <>Migration processing</>,
+    stepRenderer: ({ setNextButtonAvailable, selectedPlaylists, selectedDstPlatform, onSuccessMigration }) => (
+      <MigrationProcessingStep
+        setNextButtonAvailable={setNextButtonAvailable}
+        selectedPlaylists={selectedPlaylists}
+        selectedDstPlatform={selectedDstPlatform!}
+        onSuccessMigration={onSuccessMigration}
+      />
+    ),
   },
   {
     label: 'Migration completed!',

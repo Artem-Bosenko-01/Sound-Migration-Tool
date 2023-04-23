@@ -38,23 +38,45 @@ const MigrationWizard = () => {
 
   const handleReset = () => {
     setActiveStep(0);
-    setMigrationCompleted(false)
-    setSelectedPlaylists([])
-    setSelectedSrcPlatform(undefined)
-    setSelectedDstPlatform(undefined)
+    setMigrationCompleted(false);
+    setSelectedPlaylists([]);
+    setSelectedSrcPlatform(undefined);
+    setSelectedDstPlatform(undefined);
   };
 
   return (
-    <Box sx={{ padding: '30px 25px 0px' }} display={'flex'} justifyContent={'center'}>
+    <Box sx={{ padding: '50px 25px 30px' }} display={'flex'} justifyContent={'center'}>
       {isMigrationCompleted ? (
-        <Paper square elevation={0} sx={{ p: 3, backgroundColor: "#f2f2f2" }}>
+        <Paper
+          square
+          elevation={0}
+          sx={{
+            p: 3,
+            backgroundColor: 'white',
+            boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
+            borderRadius: '6px',
+            width: '360px',
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center"
+          }}
+        >
           <Typography>All steps completed - you&apos;re finished</Typography>
           <Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
             Start new migration
           </Button>
         </Paper>
       ) : (
-        <Stepper activeStep={activeStep} orientation="vertical">
+        <Stepper
+          sx={{
+            backgroundColor: 'white',
+            boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
+            padding: '10px',
+            borderRadius: '6px',
+          }}
+          activeStep={activeStep}
+          orientation="vertical"
+        >
           {steps.map((step, index) => (
             <Step key={step.label}>
               <StepLabel>{step.label}</StepLabel>

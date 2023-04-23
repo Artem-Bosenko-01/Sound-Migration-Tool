@@ -1,7 +1,4 @@
 import React from 'react';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import { Paper } from '@mui/material';
 import ChoosePlatformStep from './ChoosePlatformStep';
 import icons from '../Icons';
 import ChoosePlaylistsStep from './ChoosePlaylistsStep';
@@ -9,7 +6,6 @@ import MigrationProcessingStep from './MigrationProcessingStep';
 import { PlaylistModel } from '../api-service';
 
 type StepRendererProps = {
-  onReset: () => void;
   setSelectedSrcPlatform: (platformName?: keyof typeof icons) => void;
   setSelectedDstPlatform: (platformName?: keyof typeof icons) => void;
   selectedSrcPlatform?: keyof typeof icons;
@@ -77,17 +73,6 @@ const steps: Steps = [
         selectedDstPlatform={selectedDstPlatform!}
         onSuccessMigration={onSuccessMigration}
       />
-    ),
-  },
-  {
-    label: 'Migration completed!',
-    stepRenderer: ({ onReset }) => (
-      <Paper square elevation={0} sx={{ p: 3 }}>
-        <Typography>All steps completed - you&apos;re finished</Typography>
-        <Button onClick={onReset} sx={{ mt: 1, mr: 1 }}>
-          Start new migration
-        </Button>
-      </Paper>
     ),
   },
 ];

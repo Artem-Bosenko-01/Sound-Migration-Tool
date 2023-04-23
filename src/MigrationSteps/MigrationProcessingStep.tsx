@@ -75,7 +75,7 @@ const MigrationProcessingStep = ({
           </ListItem>
         ))}
       </List>
-      <Button variant={'outlined'} onClick={handleConfirm}>
+      <Button sx={{marginBottom: "20px"}} variant={'outlined'} onClick={handleConfirm}>
         Confirm
       </Button>
     </>

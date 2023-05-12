@@ -13,6 +13,7 @@ import Box from '@mui/material/Box/Box';
 import { migratePlaylists, PlaylistModel } from '../api-service';
 import formatPlatformName from '../utils/formatPlatformName';
 import icons from '../Icons';
+import ErrorModal from './ErrorModal';
 
 type Props = {
   setNextButtonAvailable: (isDisabled: boolean) => void;
@@ -32,9 +33,9 @@ const MigrationProcessingStep = ({
     setNextButtonAvailable(false);
   }, [setNextButtonAvailable]);
 
-  const { mutate: migrate } = useMutation<
+  const { mutate: migrate, error } = useMutation<
     string,
-    {},
+    { message: string },
     { playlists: Array<PlaylistModel>; selectedDstPlatform: string }
   >(({ playlists, selectedDstPlatform }) => migratePlaylists(playlists, selectedDstPlatform));
 
@@ -75,9 +76,10 @@ const MigrationProcessingStep = ({
           </ListItem>
         ))}
       </List>
-      <Button sx={{marginBottom: "20px"}} variant={'outlined'} onClick={handleConfirm}>
+      <Button sx={{ marginBottom: '20px' }} variant={'outlined'} onClick={handleConfirm}>
         Confirm
       </Button>
+      <ErrorModal show={!!error} message={error?.message ?? ''} />
     </>
   );
 };

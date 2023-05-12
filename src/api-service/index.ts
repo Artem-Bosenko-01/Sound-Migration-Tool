@@ -17,10 +17,11 @@ export const fetchPlaylists = (selectedPlatform: string): Promise<Array<Playlist
       name: "playlist",
       amountOfSongs: 15
     }])
-  }, 2000));
+  }, 6000));
 };
 
 
 export const migratePlaylists = (playlists: Array<PlaylistModel>, selectedDstPlatform: string):Promise<string> => {
-  return new Promise((resolve => setTimeout(() => resolve("GOOD"), 2000)))
+  // return new Promise((resolve => setTimeout(() => resolve("GOOD"), 6000)))
+  return new Promise((resolve, reject) => setTimeout(() =>reject({ message: "Your authentication token for YouTube Music expired. Please generate new token" }), 2000))
 }

@@ -27,3 +27,39 @@ code {
   background-color: #1fdf64;
   cursor: pointer;
 }
+
+
+/* Button container */
+.google-auth-button {
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #555555;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+}
+
+/* Button hover effect */
+.google-auth-button:hover {
+  background-color: #f5f5f5;
+}
+
+/* Button active effect */
+.google-auth-button:active {
+  background-color: #dddddd;
+}
+
+/* Button text styling */
+.google-auth-button .google-auth-text {
+  align-self: center;
+}
+
+/* Button disabled state */
+.google-auth-button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

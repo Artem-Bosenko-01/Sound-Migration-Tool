@@ -1,24 +1,24 @@
-import Box from '@mui/material/Box/Box';
-import Card from '@mui/material/Card/Card';
-import CardContent from '@mui/material/CardContent/CardContent';
-import Grid from '@mui/material/Grid/Grid';
-import Typography from '@mui/material/Typography';
-import icons from '../Icons';
-import GoogleLogin from 'react-google-login';
 import React from 'react';
-// import { loadAuth2 } from 'gapi-script';
-
-// temporary it will be here
-const clientId = '75898408331-4prql5eq7jgha86b82rdtlj4vptrcg2v.apps.googleusercontent.com';
-const scopes = ['https://www.googleapis.com/auth/youtube.force-ssl'];
-
-// loadAuth2(
-//   'client:auth2',
-//   '75898408331-4prql5eq7jgha86b82rdtlj4vptrcg2v.apps.googleusercontent.com',
-//   'https://www.googleapis.com/auth/youtube.force-ssl',
-// );
+import { Alert, Box, Button } from '@mui/material';
+import { Card } from '@mui/material';
+import { CardContent } from '@mui/material';
+import { Grid } from '@mui/material';
+import { Typography } from '@mui/material';
+import icons from '../Icons';
+import { UserInfo } from '../api-service/models';
+import { useQuery } from 'react-query';
+import { getUserInfo } from '../api-service';
+import CircularProgress from '@mui/material/CircularProgress';
+import { LOG_IN_SPOTIFY_URL, LOG_IN_YOUTUBE_DATA_URL } from '../constants';
 
 const UserSettings = () => {
+  const spotifyToken = window.localStorage.getItem("spotify_token")
+  const youtubeToken = window.localStorage.getItem("youtube_data_token")
+  const { isLoading, data: userInfo } = useQuery<UserInfo>('get-user-info', getUserInfo, {
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
+  });
+
   return (
     <Box display={'flex'} flexDirection={'column'} padding={'30px 30px 0 30px'}>
       <Box width={'450px'}>
@@ -37,9 +37,13 @@ const UserSettings = () => {
                 justifyContent={'center'}
                 paddingLeft={'0 !important'}
               >
-                <Typography variant="body2" color="textSecondary">
-                  Johnatan Smith
-                </Typography>
+                {isLoading ? (
+                  <CircularProgress />
+                ) : (
+                  <Typography variant="body2" color="textSecondary">
+                    {userInfo?.fullName}
+                  </Typography>
+                )}
               </Grid>
             </Grid>
             <hr />
@@ -55,9 +59,13 @@ const UserSettings = () => {
                 justifyContent={'center'}
                 paddingLeft={'0 !important'}
               >
-                <Typography variant="body2" color="textSecondary">
-                  example@example.com
-                </Typography>
+                {isLoading ? (
+                  <CircularProgress />
+                ) : (
+                  <Typography variant="body2" color="textSecondary">
+                    {userInfo?.email}
+                  </Typography>
+                )}
               </Grid>
             </Grid>
           </CardContent>
@@ -90,10 +98,19 @@ const UserSettings = () => {
                 display={'flex'}
                 justifyContent={'center'}
                 paddingLeft={'0 !important'}
+                marginLeft={'10px !important'}
+                style={{fontSize: "12px", overflow: "scroll"}}
+                maxWidth={"73% !important"}
               >
-                <a href={'/'} className={'spotify-login-button'}>
-                  LOG IN
-                </a>
+                {isLoading ? (
+                  <CircularProgress />
+                ) : userInfo?.spotifyToken ?? spotifyToken ? (
+                  userInfo?.spotifyToken ?? spotifyToken
+                ) : (
+                  <a href={LOG_IN_SPOTIFY_URL} className={'spotify-login-button'}>
+                    LOG IN
+                  </a>
+                )}
               </Grid>
             </Grid>
             <hr />
@@ -120,17 +137,27 @@ const UserSettings = () => {
                 display={'flex'}
                 justifyContent={'center'}
                 paddingLeft={'0 !important'}
+                marginLeft={'10px !important'}
+                style={{fontSize: "12px", overflow: "scroll"}}
+                maxWidth={"73% !important"}
               >
-                <GoogleLogin
-                  clientId={clientId}
-                  buttonText="Authorize with Google"
-                  onSuccess={() => {}}
-                  onFailure={() => {}}
-                  scope={scopes.join(' ')}
-                  responseType="token"
-                />
+                {isLoading ? (
+                  <CircularProgress />
+                ) : userInfo?.ytMusicToken ?? youtubeToken ? (
+                  userInfo?.ytMusicToken ?? youtubeToken
+                ) : (
+                  <a href={LOG_IN_YOUTUBE_DATA_URL} className="google-auth-button">
+                    <span className="google-auth-text">Sign in with Google</span>
+                  </a>
+                )}
               </Grid>
             </Grid>
+            {(!!youtubeToken || !!spotifyToken) && (
+              <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
+                <Alert style={{width: "100%"}} severity="warning">You have unsaved changes</Alert>
+                <Button style={{minWidth: '150px', marginLeft: '15px'}} variant="contained">Save Changes</Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </Box>

@@ -12,26 +12,41 @@ import Container from '@mui/material/Container';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import routeNames from './routeNames';
+import { useFormik } from 'formik';
+import { LoginCredentials, loginSchema } from '../utils/validation-rules';
+import { login } from '../api-service';
+import { useMutation } from 'react-query';
+import { Alert } from '@mui/material';
 
 const LoginForm = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log("rememberMe", rememberMe);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-    // handle move to back
-    localStorage.setItem("token", "4645frvfdvv45")
-    navigate(routeNames.main);
+  const {mutate, error} = useMutation<
+    void,
+    { message: string },
+    LoginCredentials
+    >(({email, password}: LoginCredentials) => login(email, password))
+
+  const handleSubmit = async ({ email, password }: LoginCredentials) => {
+    mutate({ email, password }, {
+      onSuccess: () => navigate(routeNames.main)
+    })
   };
+
+  const formik = useFormik<LoginCredentials>({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    validationSchema: loginSchema,
+    onSubmit: handleSubmit,
+    validateOnChange: true,
+    validateOnBlur: true
+  });
 
   const token = localStorage.getItem('token');
 
-  if(token) {
+  if (token) {
     navigate(routeNames.main);
   }
 
@@ -49,7 +64,10 @@ const LoginForm = () => {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+        <Box component="form" onSubmit={formik.handleSubmit} noValidate sx={{ mt: 1 }}>
+          {error && (
+            <Alert severity="error">{error.message}</Alert>
+          )}
           <TextField
             margin="normal"
             required
@@ -59,6 +77,10 @@ const LoginForm = () => {
             name="email"
             autoComplete="email"
             autoFocus
+            value={formik.values.email}
+            onChange={formik.handleChange}
+            error={formik.touched.email && Boolean(formik.errors.email)}
+            helperText={formik.touched.email && formik.errors.email}
           />
           <TextField
             margin="normal"
@@ -69,6 +91,10 @@ const LoginForm = () => {
             type="password"
             id="password"
             autoComplete="current-password"
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            error={formik.touched.password && Boolean(formik.errors.password)}
+            helperText={formik.touched.password && formik.errors.password}
           />
           <FormControlLabel
             control={
@@ -83,9 +109,9 @@ const LoginForm = () => {
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
             Sign In
           </Button>
-          <Grid container justifyContent={"center"}>
+          <Grid container justifyContent={'center'}>
             <Grid item>
-              <Link href={"/register"} variant="body2">
+              <Link href={'/register'} variant="body2">
                 {"Don't have an account? Sign Up"}
               </Link>
             </Grid>

@@ -7,22 +7,43 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import routeNames from './routeNames';
+import { useFormik } from 'formik';
+import { registrationSchema, RegisterCredentials } from '../utils/validation-rules';
+import { Alert } from '@mui/material';
+import { useMutation } from 'react-query';
+import { register } from '../api-service';
 
 const RegistrationForm = () => {
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-    // handle submitting and move data to back
-    navigate(routeNames.login);
+  const { mutate, error } = useMutation<void, { message: string }, RegisterCredentials>(
+    ({ firstName, lastName, email, password }: RegisterCredentials) =>
+      register({ email, password, firstName, lastName }),
+  );
+  const handleSubmit = ({ email, password, firstName, lastName }: RegisterCredentials) => {
+    mutate(
+      { firstName, lastName, email, password },
+      {
+        onSuccess: () => navigate(routeNames.login),
+      },
+    );
   };
+
+  const formik = useFormik<RegisterCredentials & { confirmPassword: string }>({
+    initialValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+    validationSchema: registrationSchema,
+    onSubmit: handleSubmit,
+    validateOnChange: true,
+    validateOnBlur: true,
+  });
 
   if (token) {
     navigate(routeNames.login);
@@ -42,7 +63,8 @@ const RegistrationForm = () => {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
-        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+        <Box component="form" noValidate onSubmit={formik.handleSubmit} sx={{ mt: 3 }}>
+          {error && <Alert severity="error">{error.message}</Alert>}
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -53,6 +75,10 @@ const RegistrationForm = () => {
                 id="firstName"
                 label="First Name"
                 autoFocus
+                value={formik.values.firstName}
+                onChange={formik.handleChange}
+                error={formik.touched.firstName && Boolean(formik.errors.firstName)}
+                helperText={formik.touched.firstName && formik.errors.firstName}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -63,6 +89,10 @@ const RegistrationForm = () => {
                 label="Last Name"
                 name="lastName"
                 autoComplete="family-name"
+                value={formik.values.lastName}
+                onChange={formik.handleChange}
+                error={formik.touched.lastName && Boolean(formik.errors.lastName)}
+                helperText={formik.touched.lastName && formik.errors.lastName}
               />
             </Grid>
             <Grid item xs={12}>
@@ -73,6 +103,10 @@ const RegistrationForm = () => {
                 label="Email Address"
                 name="email"
                 autoComplete="email"
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                error={formik.touched.email && Boolean(formik.errors.email)}
+                helperText={formik.touched.email && formik.errors.email}
               />
             </Grid>
             <Grid item xs={12}>
@@ -84,6 +118,25 @@ const RegistrationForm = () => {
                 type="password"
                 id="password"
                 autoComplete="new-password"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                error={formik.touched.password && Boolean(formik.errors.password)}
+                helperText={formik.touched.password && formik.errors.password}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField
+                required
+                fullWidth
+                name="confirmPassword"
+                label="Confirm Password"
+                type="password"
+                id="confirmPassword"
+                autoComplete="new-password"
+                value={formik.values.confirmPassword}
+                onChange={formik.handleChange}
+                error={formik.touched.confirmPassword && Boolean(formik.errors.confirmPassword)}
+                helperText={formik.touched.confirmPassword && formik.errors.confirmPassword}
               />
             </Grid>
           </Grid>

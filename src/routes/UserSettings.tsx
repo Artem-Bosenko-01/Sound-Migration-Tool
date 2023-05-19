@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { Alert, Box, Button } from '@mui/material';
 import { Card } from '@mui/material';
 import { CardContent } from '@mui/material';
@@ -6,18 +6,40 @@ import { Grid } from '@mui/material';
 import { Typography } from '@mui/material';
 import icons from '../Icons';
 import { UserInfo } from '../api-service/models';
-import { useQuery } from 'react-query';
-import { getUserInfo } from '../api-service';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
+import { getUserInfo, updateTokens } from '../api-service';
 import CircularProgress from '@mui/material/CircularProgress';
 import { LOG_IN_SPOTIFY_URL, LOG_IN_YOUTUBE_DATA_URL } from '../constants';
 
 const UserSettings = () => {
-  const spotifyToken = window.localStorage.getItem("spotify_token")
-  const youtubeToken = window.localStorage.getItem("youtube_data_token")
+  const spotifyToken = window.localStorage.getItem('spotify_token');
+  const youtubeToken = window.localStorage.getItem('youtube_data_token');
+  const [showAlert, setShowAlert] = useState(!!youtubeToken || !!spotifyToken);
   const { isLoading, data: userInfo } = useQuery<UserInfo>('get-user-info', getUserInfo, {
     refetchOnWindowFocus: false,
     refetchInterval: false,
   });
+
+  const queryClient = useQueryClient()
+  const { mutate } = useMutation<
+    void,
+    { message: string },
+    { spotifyToken: string | null; ytMusicToken: string | null }
+  >(({ spotifyToken, ytMusicToken }: any) => updateTokens({ spotifyToken, ytMusicToken }));
+
+  const saveChanges = useCallback(() => {
+    mutate(
+      { spotifyToken, ytMusicToken: youtubeToken },
+      {
+        onSuccess: async () => {
+          window.localStorage.removeItem('spotify_token');
+          window.localStorage.removeItem('youtube_data_token');
+          setShowAlert(false);
+          await queryClient.invalidateQueries('get-user-info')
+        },
+      },
+    );
+  }, [mutate, queryClient, spotifyToken, youtubeToken]);
 
   return (
     <Box display={'flex'} flexDirection={'column'} padding={'30px 30px 0 30px'}>
@@ -99,8 +121,8 @@ const UserSettings = () => {
                 justifyContent={'center'}
                 paddingLeft={'0 !important'}
                 marginLeft={'10px !important'}
-                style={{fontSize: "12px", overflow: "scroll"}}
-                maxWidth={"73% !important"}
+                style={{ fontSize: '12px', overflow: 'scroll' }}
+                maxWidth={'73% !important'}
               >
                 {isLoading ? (
                   <CircularProgress />
@@ -138,8 +160,8 @@ const UserSettings = () => {
                 justifyContent={'center'}
                 paddingLeft={'0 !important'}
                 marginLeft={'10px !important'}
-                style={{fontSize: "12px", overflow: "scroll"}}
-                maxWidth={"73% !important"}
+                style={{ fontSize: '12px', overflow: 'scroll' }}
+                maxWidth={'73% !important'}
               >
                 {isLoading ? (
                   <CircularProgress />
@@ -152,10 +174,18 @@ const UserSettings = () => {
                 )}
               </Grid>
             </Grid>
-            {(!!youtubeToken || !!spotifyToken) && (
+            {showAlert && (
               <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
-                <Alert style={{width: "100%"}} severity="warning">You have unsaved changes</Alert>
-                <Button style={{minWidth: '150px', marginLeft: '15px'}} variant="contained">Save Changes</Button>
+                <Alert style={{ width: '100%' }} severity="warning">
+                  You have unsaved changes
+                </Alert>
+                <Button
+                  style={{ minWidth: '150px', marginLeft: '15px' }}
+                  variant="contained"
+                  onClick={saveChanges}
+                >
+                  Save Changes
+                </Button>
               </div>
             )}
           </CardContent>

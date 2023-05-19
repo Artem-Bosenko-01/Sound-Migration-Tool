@@ -55,6 +55,16 @@ export async function getUserInfo(): Promise<UserInfo> {
   };
 }
 
+export async function updateTokens({ spotifyToken, ytMusicToken }: Partial<UserInfo>) {
+  const token = getToken()
+  const response = await sendRequest("/update-tokens", {
+    method: 'PUT',
+    headers: new Headers({ Authorization: `Bearer ${token}` }),
+    body: JSON.stringify({ spotifyAuthToken: spotifyToken, youtubeMusicAuthToken: ytMusicToken }),
+  });
+  checkResponseOnClientOrServerError(response);
+}
+
 export const fetchPlaylists = (selectedPlatform: string): Promise<Array<PlaylistModel>> => {
   return new Promise((resolve) =>
     setTimeout(() => {

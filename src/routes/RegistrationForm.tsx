@@ -16,7 +16,6 @@ import { useMutation } from 'react-query';
 import { register } from '../api-service';
 
 const RegistrationForm = () => {
-  const token = localStorage.getItem('token');
   const navigate = useNavigate();
   const { mutate, error } = useMutation<void, { message: string }, RegisterCredentials>(
     ({ firstName, lastName, email, password }: RegisterCredentials) =>
@@ -44,10 +43,6 @@ const RegistrationForm = () => {
     validateOnChange: true,
     validateOnBlur: true,
   });
-
-  if (token) {
-    navigate(routeNames.login);
-  }
 
   return (
     <Container component="main" maxWidth="xs">

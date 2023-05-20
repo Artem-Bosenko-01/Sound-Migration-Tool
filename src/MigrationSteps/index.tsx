@@ -4,6 +4,7 @@ import icons from '../Icons';
 import ChoosePlaylistsStep from './ChoosePlaylistsStep';
 import MigrationProcessingStep from './MigrationProcessingStep';
 import { PlaylistModel } from '../api-service';
+import { UserInfo } from '../api-service/models';
 
 type StepRendererProps = {
   setSelectedSrcPlatform: (platformName?: keyof typeof icons) => void;
@@ -14,6 +15,7 @@ type StepRendererProps = {
   selectedPlaylists: Array<PlaylistModel>;
   setSelectedPlaylists: (playlists: Array<PlaylistModel>) => void;
   onSuccessMigration: () => void
+  userInfo: UserInfo
 };
 
 type Step = {
@@ -55,12 +57,14 @@ const steps: Steps = [
       selectedPlaylists,
       setSelectedPlaylists,
       setNextButtonAvailable,
+                     userInfo
     }) => (
       <ChoosePlaylistsStep
         selectedSrcPlatform={selectedSrcPlatform!}
         selectedPlaylists={selectedPlaylists}
         setSelectedPlaylists={setSelectedPlaylists}
         setNextButtonAvailable={setNextButtonAvailable}
+        userInfo={userInfo}
       />
     ),
   },

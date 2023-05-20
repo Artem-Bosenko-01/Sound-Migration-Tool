@@ -2,6 +2,7 @@ import { UnauthorizedError } from './unauthorized-error';
 import { ClientServerError } from './client-server-error';
 import { ServerError } from './server-error';
 import { User, UserInfo } from './models';
+import icons from '../Icons';
 
 export type PlaylistModel = {
   id: string;
@@ -38,7 +39,7 @@ export async function register({ email, password, firstName, lastName }: User) {
 }
 
 export async function getUserInfo(): Promise<UserInfo> {
-  const token = getToken()
+  const token = getToken();
   const response = await sendRequest('/user', {
     method: 'GET',
     headers: new Headers({ Authorization: `Bearer ${token}` }),
@@ -56,8 +57,8 @@ export async function getUserInfo(): Promise<UserInfo> {
 }
 
 export async function updateTokens({ spotifyToken, ytMusicToken }: Partial<UserInfo>) {
-  const token = getToken()
-  const response = await sendRequest("/update-tokens", {
+  const token = getToken();
+  const response = await sendRequest('/update-tokens', {
     method: 'PUT',
     headers: new Headers({ Authorization: `Bearer ${token}` }),
     body: JSON.stringify({ spotifyAuthToken: spotifyToken, youtubeMusicAuthToken: ytMusicToken }),
@@ -65,27 +66,67 @@ export async function updateTokens({ spotifyToken, ytMusicToken }: Partial<UserI
   checkResponseOnClientOrServerError(response);
 }
 
-export const fetchPlaylists = (selectedPlatform: string): Promise<Array<PlaylistModel>> => {
-  return new Promise((resolve) =>
-    setTimeout(() => {
-      resolve([
-        {
-          id: '21232',
-          name: 'test1',
-          amountOfSongs: 5,
-          titleImageUrl:
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/220px-Image_created_with_a_mobile_phone.png',
-          songsNames: ['song1', 'song2'],
+export const fetchPlaylists = async (
+  selectedPlatform: keyof typeof icons,
+  userInfo: UserInfo,
+): Promise<Array<PlaylistModel>> => {
+  if (selectedPlatform === 'spotify') {
+    const spotifyResponse = await fetch('https://api.spotify.com/v1/me/playlists', {
+      headers: {
+        Authorization: `Bearer ${userInfo.spotifyToken}`,
+      },
+    });
+
+    const playlistModel = await spotifyResponse.json();
+    const playlists = playlistModel.items;
+
+    return playlists.map((playlist: any) => ({
+      id: playlist.id,
+      name: playlist.name,
+      amountOfSongs: playlist.tracks.total,
+      titleImageUrl: playlist.images[0].url,
+      songsNames: [],
+    }));
+  } else if (selectedPlatform === 'youtubeMusic') {
+    const ytMusicResponse = await fetch(
+      'https://www.googleapis.com/youtube/v3/playlists?part=snippet&mine=true',
+      {
+        headers: {
+          Authorization: `Bearer ${userInfo.ytMusicToken}`,
         },
+      },
+    );
+
+    const playlistModel = await ytMusicResponse.json();
+    const playlists = playlistModel.items;
+
+    const playlistsWithAmountOfSongs = []
+    for (const playlist of playlists) {
+      const playlistId = playlist.id;
+      const response = await fetch(
+        `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=0`,
         {
-          id: '212365',
-          name: 'playlist',
-          amountOfSongs: 15,
-          songsNames: ['song1'],
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${userInfo.ytMusicToken}`,
+            'Content-Type': 'application/json',
+          },
         },
-      ]);
-    }, 6000),
-  );
+      );
+
+      let playlistItems = await response.json();
+      const videoCount = playlistItems.pageInfo.totalResults;
+      playlistsWithAmountOfSongs.push({
+        id: playlistId,
+        name: playlist.snippet.title,
+        amountOfSongs: videoCount,
+        titleImageUrl: playlist.snippet.thumbnails.default.url,
+        songsNames: [],
+      })
+    }
+    return playlistsWithAmountOfSongs
+  }
+  throw new Error('unsupported platform selected');
 };
 
 export const migratePlaylists = (

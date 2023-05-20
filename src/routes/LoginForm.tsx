@@ -9,7 +9,7 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import routeNames from './routeNames';
 import { useFormik } from 'formik';
@@ -44,11 +44,13 @@ const LoginForm = () => {
     validateOnBlur: true
   });
 
-  const token = localStorage.getItem('token');
+  useEffect(() => {
+    const token = localStorage.getItem('token');
 
-  if (token) {
-    navigate(routeNames.main);
-  }
+    if (token) {
+      navigate(routeNames.main);
+    }
+  }, [navigate])
 
   return (
     <Container component="main" maxWidth="xs">

@@ -11,12 +11,14 @@ import ListItemText from '@mui/material/ListItemText';
 import CircularProgress from '@mui/material/CircularProgress';
 import * as React from 'react';
 import { fetchPlaylists, PlaylistModel } from '../api-service';
+import { UserInfo } from '../api-service/models';
 
 type Props = {
   selectedSrcPlatform: keyof typeof icons;
   selectedPlaylists: Array<PlaylistModel>;
   setSelectedPlaylists: (playlists: Array<PlaylistModel>) => void;
   setNextButtonAvailable: (isDisable: boolean) => void;
+  userInfo: UserInfo
 };
 
 const ChoosePlaylistsStep = ({
@@ -24,6 +26,7 @@ const ChoosePlaylistsStep = ({
   selectedPlaylists,
   setSelectedPlaylists,
   setNextButtonAvailable,
+  userInfo
 }: Props) => {
   useEffect(() => {
     setNextButtonAvailable(false);
@@ -33,7 +36,7 @@ const ChoosePlaylistsStep = ({
   //fetch playlists for source directory on render and show loader until we wait for response
   const { isLoading, data: playlists } = useQuery<Array<PlaylistModel>>(
     'user-playlists',
-    () => fetchPlaylists(selectedSrcPlatform),
+    async () => await fetchPlaylists(selectedSrcPlatform, userInfo)
   );
 
   const handleToggle = (playlist: PlaylistModel) => () => {
@@ -56,9 +59,11 @@ const ChoosePlaylistsStep = ({
       {playlists?.map(({ id, name, amountOfSongs, titleImageUrl }) => {
         return (
           <ListItem
+            disabled={amountOfSongs < 1}
             key={name}
             secondaryAction={
               <Checkbox
+                disabled={amountOfSongs < 1}
                 edge="end"
                 onChange={handleToggle(playlists.find(p => p.id === id)!)}
                 checked={selectedPlaylists.indexOf(playlists.find(p => p.id === id)!) !== -1}
@@ -66,7 +71,7 @@ const ChoosePlaylistsStep = ({
             }
             disablePadding
           >
-            <ListItemButton onClick={handleToggle(playlists.find(p => p.id === id)!)}>
+            <ListItemButton disabled={amountOfSongs < 1} onClick={handleToggle(playlists.find(p => p.id === id)!)}>
               <ListItemAvatar>
                 <Avatar alt={name} src={titleImageUrl} sx={{ width: 56, height: 56 }}>
                   {name.slice(0, 1)}

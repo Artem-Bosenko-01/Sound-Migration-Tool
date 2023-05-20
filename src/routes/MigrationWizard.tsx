@@ -8,10 +8,17 @@ import { Paper, StepContent } from '@mui/material';
 import steps from '../MigrationSteps';
 import { useState } from 'react';
 import icons from '../Icons';
-import { PlaylistModel } from '../api-service';
+import { getUserInfo, PlaylistModel } from '../api-service';
 import Typography from '@mui/material/Typography';
+import { useQuery } from 'react-query';
+import { UserInfo } from '../api-service/models';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const MigrationWizard = () => {
+  const { isLoading, data: userInfo } = useQuery<UserInfo>('get-user-info', getUserInfo, {
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
+  });
   const [activeStep, setActiveStep] = useState(0);
   const [selectedSrcPlatform, setSelectedSrcPlatform] = useState<keyof typeof icons | undefined>(
     undefined,
@@ -56,9 +63,9 @@ const MigrationWizard = () => {
             boxShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
             borderRadius: '6px',
             width: '360px',
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "center"
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
           }}
         >
           <Typography>All steps completed - you&apos;re finished</Typography>
@@ -66,6 +73,8 @@ const MigrationWizard = () => {
             Start new migration
           </Button>
         </Paper>
+      ) : isLoading ? (
+        <CircularProgress />
       ) : (
         <Stepper
           sx={{
@@ -91,6 +100,7 @@ const MigrationWizard = () => {
                     selectedPlaylists,
                     setSelectedPlaylists,
                     onSuccessMigration: () => setMigrationCompleted(true),
+                    userInfo: userInfo!,
                   })}
                   <Box sx={{ mb: 2 }}>
                     <div>

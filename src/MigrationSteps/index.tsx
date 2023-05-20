@@ -70,12 +70,13 @@ const steps: Steps = [
   },
   {
     label: 'Migration processing',
-    stepRenderer: ({ setNextButtonAvailable, selectedPlaylists, selectedDstPlatform, onSuccessMigration }) => (
+    stepRenderer: ({ setNextButtonAvailable, selectedPlaylists, selectedDstPlatform, onSuccessMigration, userInfo }) => (
       <MigrationProcessingStep
         setNextButtonAvailable={setNextButtonAvailable}
         selectedPlaylists={selectedPlaylists}
         selectedDstPlatform={selectedDstPlatform!}
         onSuccessMigration={onSuccessMigration}
+        userInfo={userInfo}
       />
     ),
   },

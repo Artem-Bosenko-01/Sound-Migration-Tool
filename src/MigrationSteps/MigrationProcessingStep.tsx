@@ -14,12 +14,14 @@ import { migratePlaylists, PlaylistModel } from '../api-service';
 import formatPlatformName from '../utils/formatPlatformName';
 import icons from '../Icons';
 import ErrorModal from './ErrorModal';
+import { UserInfo } from '../api-service/models';
 
 type Props = {
   setNextButtonAvailable: (isDisabled: boolean) => void;
   selectedPlaylists: Array<PlaylistModel>;
   selectedDstPlatform: keyof typeof icons;
   onSuccessMigration: () => void;
+  userInfo: UserInfo
 };
 
 const MigrationProcessingStep = ({
@@ -27,6 +29,7 @@ const MigrationProcessingStep = ({
   selectedPlaylists,
   selectedDstPlatform,
   onSuccessMigration,
+  userInfo
 }: Props) => {
   const [isMigrationProcessing, setMigrationProcessing] = useState(false);
   useEffect(() => {
@@ -36,13 +39,14 @@ const MigrationProcessingStep = ({
   const { mutate: migrate, error } = useMutation<
     string,
     { message: string },
-    { playlists: Array<PlaylistModel>; selectedDstPlatform: string }
-  >(({ playlists, selectedDstPlatform }) => migratePlaylists(playlists, selectedDstPlatform));
+    { playlists: Array<PlaylistModel>, selectedDstPlatform: keyof typeof icons, userInfo: UserInfo }
+  // @ts-ignore
+  >(({ playlists, selectedDstPlatform, userInfo }) => migratePlaylists({ playlists, selectedDstPlatform, userInfo }));
 
   const handleConfirm = () => {
     setMigrationProcessing(true);
     migrate(
-      { playlists: selectedPlaylists, selectedDstPlatform },
+      { playlists: selectedPlaylists, selectedDstPlatform, userInfo },
       {
         onSuccess: onSuccessMigration,
         onSettled: () => setMigrationProcessing(false),

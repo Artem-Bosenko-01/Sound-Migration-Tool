@@ -1,6 +1,6 @@
 export const SPOTIFY_CLIENT_ID = "fd621971ed3545a1b42e450cdc20c07a"
 export const SPOTIFY_CLIENT_SECRET = "15fa4d98c46c4e31b64a91735229aaf1"
-export const SPOTIFY_SCOPES = ['playlist-read-private', 'playlist-modify-public', 'user-read-playback-position', 'user-read-private']
+export const SPOTIFY_SCOPES = [ 'playlist-read-private', 'playlist-read-collaborative', 'playlist-modify-public', 'user-read-playback-position', 'user-read-private']
 const SPOTIFY_REDIRECT = "http://localhost:3000/spotify-logged"
 
 export const YOUTUBE_DATA_ID = "75898408331-4prql5eq7jgha86b82rdtlj4vptrcg2v.apps.googleusercontent.com"
